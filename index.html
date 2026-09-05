@@ -30,7 +30,7 @@
     "description": "A hub of free farm tools: calculators, planting calendar, farming weather, pest and disease identifier and market price board.",
     "author": { "@type": "Person", "name": "Enock Chinatsvi", "url": "https://github.com/Chinatsvi" },
     "publisher": { "@type": "Organization", "name": "AgriBase" },
-    "mainEntityOfPage": "https://chinatsvi.github.io/farm-tools/"
+    "mainEntityOfPage": "https://chinatsvi.github.io/agribase-farm-tools/"
   }
   </script>
 
@@ -58,6 +58,7 @@
     .nav-links { display: flex; align-items: center; gap: 24px; font-size: 14px; font-weight: 600; }
     .nav-links a { text-decoration: none; opacity: .92; }
     .nav-links a:hover { opacity: 1; }
+    .nav-links a.active { opacity: 1; border-bottom: 2px solid var(--gold); padding-bottom: 4px; }
     .nav-toggle-input { display: none; }
     .nav-toggle { display: none; cursor: pointer; }
 
@@ -159,9 +160,10 @@
 </head>
 <body>
 
+  <!-- Navigation (universal — keep identical across all AgriBase pages) -->
   <nav class="nav">
     <div class="nav-inner">
-      <a class="brand" href="/farmers-community/">
+      <a class="brand" href="https://chinatsvi.github.io/farmers-community/">
         <span class="brand-icon"><img src="/favicon-256.png" alt="AgriBase icon"></span>
         <span>AgriBase</span>
       </a>
@@ -170,13 +172,13 @@
         <span></span><span></span><span></span>
       </label>
       <div class="nav-links">
-        <a href="/farmers-community/">🏠 Home</a>
-        <a href="/planting/">🌱 Planting</a>
-        <a href="/weather/">🌦️ Weather</a>
-        <a href="/pests/">🐛 Pests</a>
-        <a href="/tools/">🧮 Calculators</a>
-        <a href="/market/">💰 Market</a>
-        <a href="/farmers-community/#features">📚 Knowledge</a>
+        <a href="https://chinatsvi.github.io/farmers-community/">🏠 Home</a>
+        <a href="https://chinatsvi.github.io/planting/">🌱 Planting</a>
+        <a href="https://chinatsvi.github.io/weather/">🌦️ Weather</a>
+        <a href="https://chinatsvi.github.io/pests/">🐛 Pests</a>
+        <a href="https://chinatsvi.github.io/agribase-farm-tools/" class="active">🧮 Calculators</a>
+        <a href="https://chinatsvi.github.io/market/">💰 Market</a>
+        <a href="https://chinatsvi.github.io/farmers-community/#features">📚 Knowledge</a>
       </div>
     </div>
   </nav>
@@ -207,28 +209,28 @@
   <section class="tools-wrap">
     <div class="tools-grid">
 
-      <a class="tool-card" href="/tools/">
+      <a class="tool-card" href="https://chinatsvi.github.io/agribase-farm-tools/">
         <div class="icon icon-field">🧮</div>
         <h3>Farm Calculators</h3>
         <p>Fertilizer, plant population, crop spacing and farm profit calculators.</p>
         <span class="status status-live">Live</span>
       </a>
 
-      <a class="tool-card" href="/planting/">
+      <a class="tool-card" href="https://chinatsvi.github.io/planting/">
         <div class="icon icon-gold">🌱</div>
         <h3>Planting Calendar</h3>
         <p>When to plant maize, groundnuts, beans, cabbage, tomatoes and more.</p>
         <span class="status status-soon">Coming Soon</span>
       </a>
 
-      <a class="tool-card" href="/weather/">
+      <a class="tool-card" href="https://chinatsvi.github.io/weather/">
         <div class="icon icon-ink">🌦️</div>
         <h3>Farming Weather</h3>
         <p>Forecasts and farming-specific conditions for planting, irrigation and spraying.</p>
         <span class="status status-soon">Coming Soon</span>
       </a>
 
-      <a class="tool-card" href="/pests/">
+      <a class="tool-card" href="https://chinatsvi.github.io/pests/">
         <div class="icon icon-soil">🐛</div>
         <h3>Pest &amp; Disease Identifier</h3>
         <p>Identify common pests and diseases by crop, starting with maize and beans.</p>
@@ -242,7 +244,7 @@
         <span class="status status-soon">Coming Soon</span>
       </a>
 
-      <a class="tool-card" href="/farmers-community/#features">
+      <a class="tool-card" href="https://chinatsvi.github.io/farmers-community/#features">
         <div class="icon icon-gold">📚</div>
         <h3>Farming Guides</h3>
         <p>In-depth guides on crop farming, livestock, agribusiness and digital farming.</p>
@@ -266,6 +268,7 @@
     </div>
   </section>
 
+  <!-- Footer (universal — keep identical across all AgriBase pages) -->
   <footer>
     <svg class="footer-top-edge" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <path fill="#1E2B18" d="M0,34 L40,18 L80,37 L120,10 L160,30 L200,6 L240,36 L280,14 L320,26 L360,8 L400,38 L440,20 L480,4 L520,32 L560,16 L600,28 L640,10 L680,36 L720,22 L760,6 L800,34 L840,12 L880,38 L920,18 L960,8 L1000,30 L1040,14 L1080,36 L1120,20 L1160,6 L1200,32 L1200,0 L0,0 Z"></path>
@@ -279,10 +282,10 @@
         <div class="footer-tagline">Connect. Learn. Farm Better.</div>
       </div>
       <div class="footer-links">
-        <a href="/farmer-community-Help-FAQ/" target="_blank" rel="noopener noreferrer">Help &amp; FAQ</a>
-        <a href="/farmer-community-privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-        <a href="/farmer-community-terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
-        <a href="/farmer-community-contact-us/" target="_blank" rel="noopener noreferrer">Contact Us</a>
+        <a href="https://chinatsvi.github.io/farmer-community-Help-FAQ/" target="_blank" rel="noopener noreferrer">Help &amp; FAQ</a>
+        <a href="https://chinatsvi.github.io/farmer-community-privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+        <a href="https://chinatsvi.github.io/farmer-community-terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+        <a href="https://chinatsvi.github.io/farmer-community-contact-us/" target="_blank" rel="noopener noreferrer">Contact Us</a>
       </div>
     </div>
     <div class="footer-bottom">© 2026 Farmer Community. All rights reserved.</div>
