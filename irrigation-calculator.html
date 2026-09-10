@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1F4D2C">
+
+  <meta name="description"
+      content="AgriBase Farm Tools — calculators, planting calendar, farming weather, pest and disease identifier and market price board, all in one place for African farmers.">
+
+  <title>Crop Water & Irrigation Calculator | AgriBase</title>
+
+  <link rel="icon" type="image/png" href="/favicon-256.png">
+  <link rel="apple-touch-icon" href="/favicon-256.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600&family=Karla:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <meta name="google-adsense-account" content="ca-pub-2606126305565597">
+  <script async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2606126305565597"
+          crossorigin="anonymous"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "AgriBase Farm Tools",
+    "description": "A hub of free farm tools: calculators, planting calendar, farming weather, pest and disease identifier and market price board.",
+    "author": { "@type": "Person", "name": "Enock Chinatsvi", "url": "https://github.com/Chinatsvi" },
+    "publisher": { "@type": "Organization", "name": "AgriBase" },
+    "mainEntityOfPage": "https://chinatsvi.github.io/agribase-farm-tools/"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"What are ETo and ETc, and why do they matter?","acceptedAnswer":{"@type":"Answer","text":"ETo is the reference evapotranspiration for a short grass surface in your local weather. ETc is what your specific crop uses: ETc = ETo × Kc, where Kc is a crop coefficient that changes by growth stage."}},
+      {"@type":"Question","name":"Should I use Guided (FAO-56) mode or Manual Depth mode?","acceptedAnswer":{"@type":"Answer","text":"Use Guided mode to calculate water needs from crop, growth stage and local weather. Use Manual Depth mode when you already have a target application depth and just need the litres or cubic metres for your field size."}},
+      {"@type":"Question","name":"How accurate is the GPS weather sync?","acceptedAnswer":{"@type":"Answer","text":"It uses a forecast model (Open-Meteo) for same-day ETo and rainfall at your location. It's a good planning estimate but should be cross-checked with local rain gauge and extension weather data for critical decisions."}},
+      {"@type":"Question","name":"How do I know if I'm overwatering?","acceptedAnswer":{"@type":"Answer","text":"Signs include standing water after irrigation, yellowing lower leaves, soft or rotting roots, algae on the soil surface, and soil staying wet more than a day after irrigation at root depth."}},
+      {"@type":"Question","name":"Which irrigation method gives the best water efficiency?","acceptedAnswer":{"@type":"Answer","text":"Drip/micro-drip is highest at around 90% efficiency. Furrow and basin flooding are lowest at 55-65% due to deep percolation and runoff losses."}},
+      {"@type":"Question","name":"Can I calculate in Acres instead of Hectares?","acceptedAnswer":{"@type":"Answer","text":"Yes, both calculator modes have an area-unit selector that converts acres to hectares internally (1 acre = 0.404686 hectares)."}},
+      {"@type":"Question","name":"Why does the same crop show different water needs at different stages?","acceptedAnswer":{"@type":"Answer","text":"Water demand rises from the Initial stage through Vegetative growth, peaks at Mid-Season flowering/fruiting, then typically drops in the Late-Season as the crop ripens."}}
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --soil: #A63A1F; --soil-dark: #7A2A16; --field: #1F4D2C; --field-dark: #163A20; --field-mid: #2E6B3E;
+      --gold: #E3A72E; --gold-dark: #C4881B; --cream: #FBF3E6; --paper: #F3E7D2; --ink: #2A2620; --muted: #6E6152;
+      --border: #E4D3B8; --field-tint: #E3EEE4; --soil-tint: #F3E0D6; --gold-tint: #FBEBC8; --ink-tint: #ECE6DA;
+      --shadow: 0 18px 46px rgba(42,38,32,.16); --shadow-sm: 0 8px 22px rgba(42,38,32,.10);
+      --font-display: "Fraunces", Georgia, serif;
+      --font-body: "Karla", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-body); color: var(--ink); background: var(--cream); line-height: 1.6; }
+    a { color: inherit; }
+    .eyebrow { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 600; }
+
+    /* Nav */
+    .nav { position: sticky; top: 0; z-index: 40; background: linear-gradient(90deg, var(--field-dark), var(--field)); color: var(--cream); box-shadow: 0 3px 18px rgba(0,0,0,.18); }
+    .nav-inner { position: relative; width: min(1160px, calc(100% - 40px)); margin: auto; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 21px; }
+    .brand-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--cream); color: var(--field); overflow: hidden; border: 2px solid rgba(255,255,255,.35); }
+    .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 14px; font-weight: 600; }
+    .nav-links a { text-decoration: none; opacity: .92; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-links a.active { opacity: 1; border-bottom: 2px solid var(--gold); padding-bottom: 4px; }
+    .nav-toggle-input { display: none; }
+    .nav-toggle { display: none; cursor: pointer; }
+
+    /* Page hero */
+    .page-hero {
+      position: relative;
+      background: repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 26px), linear-gradient(160deg, var(--field-dark) 0%, var(--field) 55%, var(--field-mid) 100%);
+      color: var(--cream); overflow: hidden; padding: 56px 20px 76px; text-align: center;
+    }
+    .page-hero-inner { position: relative; z-index: 1; width: min(760px, calc(100% - 40px)); margin: auto; }
+    .page-hero-badge { display: inline-flex; align-items: center; gap: 9px; padding: 7px 14px 7px 8px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); font-size: 12.5px; font-weight: 600; margin-bottom: 20px; }
+    .page-hero h1 { margin: 0 0 16px; font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.1; letter-spacing: -.8px; }
+    .page-hero p.lead { max-width: 560px; margin: 0 auto; font-size: clamp(15px, 1.7vw, 17px); color: rgba(251,243,230,.92); }
+    .page-hero-divider { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 40px; }
+
+    /* Ad slot */
+    .ad-slot-wrap { background: var(--cream); padding: 0 20px; }
+    .ad-slot { width: min(1100px, calc(100% - 32px)); margin: 0 auto 10px; padding: 14px; text-align: center; overflow: hidden; min-height: 90px; border: 1px dashed var(--border); border-radius: 14px; }
+    .ad-slot .label { display: block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+    /* Tool grid */
+    .tools-wrap { padding: 60px 20px 20px; }
+    .tools-grid { width: min(1000px, 100%); margin: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .tool-card {
+      display: block;
+      text-decoration: none;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+    .tool-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); border-color: rgba(31,77,44,.3); }
+
+    .tool-card .icon {
+      width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center;
+      font-size: 24px; margin-bottom: 16px; border: 2px solid transparent;
+    }
+    .icon-field { background: var(--field-tint); border-color: rgba(31,77,44,.25); }
+    .icon-soil  { background: var(--soil-tint);  border-color: rgba(166,58,31,.25); }
+    .icon-gold  { background: var(--gold-tint);  border-color: rgba(196,136,27,.3); }
+    .icon-ink   { background: var(--ink-tint);   border-color: rgba(42,38,32,.2); }
+
+    .tool-card h3 { margin: 0 0 8px; color: var(--field); font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .tool-card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .tool-card .status {
+      display: inline-block; margin-top: 12px; font-family: var(--font-mono); font-size: 10.5px;
+      letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
+    }
+    .status-live { background: var(--field-tint); color: var(--field); }
+    .status-soon { background: var(--gold-tint); color: var(--gold-dark); }
+
+    /* CTA */
+    .cta { background: var(--cream); text-align: center; padding: 80px 20px; }
+    .cta-frame { max-width: 620px; margin: 0 auto; border: 2px dashed var(--field); border-radius: 20px; padding: 44px 34px; }
+    .cta h2 { color: var(--field); font-family: var(--font-display); font-weight: 700; margin: 6px 0 14px; font-size: clamp(22px, 3vw, 28px); }
+    .section-intro { max-width: 520px; margin: 0 auto; color: var(--muted); font-size: 15px; }
+    .button {
+      display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 11px;
+      text-decoration: none; font-weight: 800; font-size: 15px; background: var(--gold); color: var(--ink);
+      box-shadow: var(--shadow-sm); transition: transform .2s ease, box-shadow .2s ease, background .2s ease; margin-top: 20px;
+    }
+    .button:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    /* Footer */
+    footer { position: relative; background: linear-gradient(180deg, #1E2B18, #141F11); color: rgba(251,243,230,.88); padding: 60px 20px 30px; }
+    .footer-top-edge { position: absolute; top: -1px; left: 0; right: 0; width: 100%; height: 40px; }
+    .footer-inner { width: min(1120px, calc(100% - 40px)); margin: auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
+    .footer-brand { display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .footer-brand .brand-icon { width: 36px; height: 36px; }
+    .footer-tagline { font-size: 13px; opacity: .75; margin-top: 3px; font-family: var(--font-mono); }
+    .footer-links { display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap; }
+    .footer-links a { text-decoration: none; opacity: .85; }
+    .footer-links a:hover { opacity: 1; }
+    .footer-bottom { width: min(1120px, calc(100% - 40px)); margin: 30px auto 0; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.12); text-align: center; font-size: 12.5px; opacity: .65; font-family: var(--font-mono); }
+
+    @media (max-width: 800px) {
+      .tools-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .nav-links {
+        position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: flex-start; gap: 6px;
+        background: linear-gradient(180deg, var(--field-dark), var(--field)); padding: 18px 20px 22px; box-shadow: var(--shadow);
+        opacity: 0; transform: translateY(-8px); pointer-events: none; transition: opacity .25s ease, transform .25s ease;
+      }
+      .nav-toggle-input:checked ~ .nav-links { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .nav-toggle { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 30px; height: 30px; }
+      .nav-toggle span { display: block; height: 2px; background: var(--cream); border-radius: 2px; transition: transform .25s ease, opacity .25s ease; }
+      .nav-toggle-input:checked ~ .nav-toggle span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+      .nav-toggle-input:checked ~ .nav-toggle span:nth-child(2){ opacity: 0; }
+      .nav-toggle-input:checked ~ .nav-toggle span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+      .tools-grid { grid-template-columns: 1fr; }
+      .page-hero { padding: 44px 18px 60px; }
+      .footer-inner { justify-content: center; text-align: center; }
+    }
+
+    .calculator-wrap{padding:42px 20px 70px}.calculator{width:min(760px,100%);margin:auto;background:var(--paper);border:1px solid var(--border);border-radius:20px;padding:28px;box-shadow:var(--shadow)}
+    .calculator h2{margin:0 0 7px;color:var(--field);font-family:var(--font-display);font-size:28px}.calculator-intro{margin:0 0 22px;color:var(--muted)}
+    .mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#eee9df;border:1px solid var(--border);padding:5px;border-radius:12px;margin-bottom:20px}
+    .mode-tab{border:0;background:transparent;border-radius:9px;padding:11px 8px;font:700 13px var(--font-body);cursor:pointer;color:var(--ink)}.mode-tab.active{background:var(--field);color:white}
+    .calc-field{margin-bottom:14px}.calc-field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px;color:var(--ink)}
+    .calc-field input,.calc-field select{width:100%;border:1px solid #cdbfa9;border-radius:9px;background:white;color:var(--ink);font:500 15px var(--font-body);padding:12px}
+    .calc-field input:focus,.calc-field select:focus{outline:2px solid rgba(31,77,44,.22);border-color:var(--field)}
+    .calc-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .weather-box{background:#eaf3fb;border:1px solid #b9d4eb;border-radius:12px;padding:14px;margin:16px 0}
+    .weather-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.weather-title{font-weight:800;color:#174f7c}
+    .sync-btn{border:0;border-radius:8px;background:#246a9b;color:white;font:700 12px var(--font-body);padding:8px 11px;cursor:pointer}.sync-btn:disabled{opacity:.65;cursor:wait}
+    .weather-note{font-size:12px;color:#174f7c;font-weight:600;margin:8px 0}.system-description{font-size:11px;color:var(--muted);margin-top:5px}
+    .primary-btn{width:100%;border:0;border-radius:10px;background:var(--field);color:white;font:800 15px var(--font-body);padding:14px;cursor:pointer;margin-top:6px}.primary-btn:hover{background:var(--field-dark)}
+    .calc-result{margin-top:20px;background:white;border:1px solid var(--border);border-radius:14px;padding:20px;display:none}.calc-result.show{display:block}
+    .result-main{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--field);margin-bottom:12px}.detail-line{font-size:13.5px;padding:5px 0;border-bottom:1px solid #eee7db}.detail-line:last-child{border-bottom:0}
+    .tip{background:var(--field-tint);border-left:4px solid var(--field);padding:10px 12px;border-radius:7px;margin-top:12px;font-size:13px}.calc-error{color:#8c2416;background:#f8e5df;border:1px solid #e2b8aa;border-radius:9px;padding:10px;font-size:13px;margin-top:12px}
+    .export-btn{border:1px solid var(--field);background:white;color:var(--field);border-radius:9px;padding:10px 14px;font:800 13px var(--font-body);cursor:pointer;margin-top:14px}
+    .method-note{width:min(760px,100%);margin:20px auto 0;color:var(--muted);font-size:12px;text-align:center}
+    @media(max-width:560px){.calculator{padding:20px}.calc-row{grid-template-columns:1fr}.weather-head{align-items:flex-start;flex-direction:column}}
+    @media print{.nav,.ad-slot-wrap,.cta,footer,.mode-tabs,.primary-btn,.export-btn,.sync-btn,.notes-wrap,.search-wrap,.faq-wrap{display:none!important}.calculator-wrap{padding:0}.calculator{box-shadow:none;border:0;width:100%;background:white}.calc-result{display:block!important}}
+
+    /* Crucial notes */
+    .notes-wrap{padding:52px 20px 10px}
+    .notes-head{width:min(900px,100%);margin:0 auto 24px;text-align:center}
+    .notes-head h2{margin:0 0 8px;color:var(--field);font-family:var(--font-display);font-size:clamp(24px,3.2vw,30px)}
+    .notes-head p{margin:0;color:var(--muted);font-size:14.5px}
+    .notes-grid{width:min(900px,100%);margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .note-card{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+    .note-card .note-icon{font-size:22px;margin-bottom:8px;display:block}
+    .note-card h3{margin:0 0 6px;font-size:15px;color:var(--field);font-family:var(--font-display)}
+    .note-card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.55}
+    .note-card.warn{background:var(--soil-tint);border-color:rgba(166,58,31,.25)}
+    .note-card.warn h3{color:var(--soil-dark)}
+    @media(max-width:700px){.notes-grid{grid-template-columns:1fr}}
+
+    /* Google search shortcuts */
+    .search-wrap{padding:30px 20px 10px}
+    .search-box{width:min(900px,100%);margin:auto;background:var(--field-tint);border:1px solid rgba(31,77,44,.2);border-radius:16px;padding:18px 20px}
+    .search-box-head{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--field-dark);font-size:14px;margin-bottom:10px}
+    .search-chips{display:flex;flex-wrap:wrap;gap:8px}
+    .search-chip{display:inline-flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:600;padding:8px 13px;border-radius:999px;transition:transform .15s ease,box-shadow .15s ease}
+    .search-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);border-color:var(--field)}
+
+    /* FAQ */
+    .faq-wrap{padding:56px 20px 10px}
+    .faq-head{width:min(820px,100%);margin:0 auto 22px;text-align:center}
+    .faq-head h2{margin:0 0 8px;color:var(--field);font-family:var(--font-display);font-size:clamp(24px,3.2vw,30px)}
+    .faq-head p{margin:0;color:var(--muted);font-size:14.5px}
+    .faq-list{width:min(820px,100%);margin:auto;display:flex;flex-direction:column;gap:10px}
+    .faq-item{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:2px 20px;box-shadow:var(--shadow-sm)}
+    .faq-item summary{cursor:pointer;list-style:none;padding:16px 0;font-weight:700;font-size:14.5px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .faq-item summary::-webkit-details-marker{display:none}
+    .faq-item summary::after{content:'+';font-size:20px;color:var(--field);flex:none;transition:transform .2s ease}
+    .faq-item[open] summary::after{transform:rotate(45deg)}
+    .faq-item p{margin:0 0 16px;font-size:13.5px;color:var(--muted);line-height:1.6}
+  </style>
+</head>
+<body>
+
+  <!-- Navigation (universal — keep identical across all AgriBase pages) -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="https://chinatsvi.github.io/farmers-community/">
+        <span class="brand-icon"><img src="/favicon-256.png" alt="AgriBase icon"></span>
+        <span>AgriBase</span>
+      </a>
+      <input type="checkbox" id="navToggle" class="nav-toggle-input">
+      <label for="navToggle" class="nav-toggle" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div class="nav-links">
+        <a href="https://chinatsvi.github.io/farmers-community/">🏠 Home</a>
+        <a href="https://chinatsvi.github.io/planting/">🌱 Planting</a>
+        <a href="https://chinatsvi.github.io/weather/">🌦️ Weather</a>
+        <a href="https://chinatsvi.github.io/pests/">🐛 Pests</a>
+        <a href="https://chinatsvi.github.io/agribase-farm-tools/" class="active">🧰 Farm Tools</a>
+        <a href="https://chinatsvi.github.io/farmer-calculators/">🧮 Calculators</a>
+        <a href="https://chinatsvi.github.io/market/">💰 Market</a>
+        <a href="https://chinatsvi.github.io/farmers-community/#features">📚 Knowledge</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="page-hero">
+    <div class="page-hero-inner">
+      <span class="page-hero-badge">💧 AgriBase Farm Calculator</span>
+      <h1>Crop Water &amp; Irrigation</h1>
+      <p class="lead">
+        Estimate crop water use, irrigation depth and total field water volume
+        using FAO-56 crop coefficients, ETo, rainfall and irrigation efficiency.
+      </p>
+    </div>
+    <svg class="page-hero-divider" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#FBF3E6" d="M0,6 L40,22 L80,3 L120,30 L160,10 L200,34 L240,4 L280,26 L320,14 L360,32 L400,2 L440,20 L480,36 L520,8 L560,24 L600,12 L640,30 L680,4 L720,18 L760,34 L800,6 L840,28 L880,2 L920,22 L960,32 L1000,10 L1040,26 L1080,4 L1120,20 L1160,34 L1200,8 L1200,40 L0,40 Z"></path>
+    </svg>
+  </header>
+
+  <div class="ad-slot-wrap">
+    <div class="ad-slot">
+      <span class="label">Advertisement</span>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2606126305565597" data-ad-slot="7638324548" data-ad-format="horizontal" data-full-width-responsive="false"></ins>
+    </div>
+  </div>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+  <section class="notes-wrap">
+    <div class="notes-head">
+      <h2>💧 Crucial Notes Before You Irrigate</h2>
+      <p>Read this first — good timing and technique save more water than any formula. Then scroll down to run the calculator.</p>
+    </div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <span class="note-icon">⏰</span>
+        <h3>Time it right</h3>
+        <p>Irrigate early morning (5–9am) or late evening. Midday watering can lose 30%+ to evaporation and wind drift before it reaches the roots.</p>
+      </div>
+      <div class="note-card">
+        <span class="note-icon">✋</span>
+        <h3>Check the soil, not the calendar</h3>
+        <p>Squeeze a handful of soil from root depth. If it holds shape and feels moist, hold off — irrigating on a fixed schedule regardless of soil moisture is the #1 cause of waterlogging.</p>
+      </div>
+      <div class="note-card">
+        <span class="note-icon">🌾</span>
+        <h3>Match the method to the crop</h3>
+        <p>Drip suits high-value row crops (tomato, pepper, onion, banana). Sprinklers suit field crops and shallow-rooted vegetables. Flood/furrow only works well on level, well-drained ground.</p>
+      </div>
+      <div class="note-card">
+        <span class="note-icon">🍂</span>
+        <h3>Mulch to cut losses</h3>
+        <p>A 5–7cm mulch layer (straw, grass, plastic) can reduce evaporation by 30–50%, meaning less water and fewer irrigation cycles for the same yield.</p>
+      </div>
+      <div class="note-card">
+        <span class="note-icon">🌧️</span>
+        <h3>Only credit "effective" rainfall</h3>
+        <p>Heavy downpours mostly run off; light drizzle mostly evaporates. Only the rain that actually soaks into the root zone should offset your irrigation — don't count the full rain-gauge reading.</p>
+      </div>
+      <div class="note-card">
+        <span class="note-icon">🧪</span>
+        <h3>Know your water quality</h3>
+        <p>Saline or hard borehole water builds up salts in the soil over time and can clog drip emitters. Test EC (electrical conductivity) before committing to large-scale drip irrigation.</p>
+      </div>
+      <div class="note-card warn">
+        <span class="note-icon">🛑</span>
+        <h3>Taper off before harvest</h3>
+        <p>Stop or sharply reduce irrigation 1–3 weeks before harvest for onions, potatoes, grains and melons — this cures bulbs/tubers, boosts sugar content, and firms up fields for access.</p>
+      </div>
+      <div class="note-card warn">
+        <span class="note-icon">⚠️</span>
+        <h3>Efficiency numbers are real losses</h3>
+        <p>The "system efficiency" in this calculator (e.g. 90% drip, 75% sprinkler, 55% furrow) isn't a formality — it's water that never reaches the crop. A poorly maintained system can lose far more than these baselines assume.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="search-wrap">
+    <div class="search-box">
+      <div class="search-box-head">🔍 Look these up before you buy or plan</div>
+      <div class="search-chips">
+        <a class="search-chip" href="https://www.google.com/search?q=drip+irrigation+kit+suppliers+near+me" target="_blank" rel="noopener noreferrer">Drip irrigation kit suppliers near me</a>
+        <a class="search-chip" href="https://www.google.com/search?q=soil+moisture+meter+price" target="_blank" rel="noopener noreferrer">Soil moisture meter price</a>
+        <a class="search-chip" href="https://www.google.com/search?q=local+7+day+weather+forecast" target="_blank" rel="noopener noreferrer">Local 7-day weather forecast</a>
+        <a class="search-chip" href="https://www.google.com/search?q=FAO-56+crop+coefficient+table" target="_blank" rel="noopener noreferrer">FAO-56 crop coefficient table</a>
+        <a class="search-chip" href="https://www.google.com/search?q=borehole+water+testing+near+me" target="_blank" rel="noopener noreferrer">Borehole water testing near me</a>
+        <a class="search-chip" href="https://www.google.com/search?q=mulching+materials+for+vegetable+farming" target="_blank" rel="noopener noreferrer">Mulching materials for vegetable farming</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="calculator-wrap">
+    <div class="calculator">
+      <h2>Crop Water &amp; Irrigation</h2>
+      <p class="calculator-intro">Estimate daily crop water consumption (ETc) from ETo, FAO-56 crop factors and rainfall offset.</p>
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="guidedTab" type="button">🌱 Crop Water (FAO-56)</button>
+        <button class="mode-tab" id="manualTab" type="button">📏 Manual Depth</button>
+      </div>
+      <div id="guidedMode">
+        <div class="calc-field"><label for="crop">Step 1: Select Crop *</label><select id="crop"></select></div>
+        <div class="calc-field"><label for="stage">Step 2: Growth Stage</label><select id="stage"></select><div class="system-description" id="kcNote"></div></div>
+        <div class="weather-box">
+          <div class="weather-head"><div class="weather-title">☀️ Step 3: Weather &amp; ETo</div><button class="sync-btn" id="syncBtn" type="button">📍 Sync GPS Weather</button></div>
+          <div class="weather-note" id="weatherNote">☀️ Standard seasonal baseline: 5.0 mm/day ETo (Sunny/Warm)</div>
+          <div class="calc-row">
+            <div class="calc-field" style="margin:0"><label for="eto">Reference ETo (mm/day)</label><input id="eto" type="number" min="0.01" step="0.01" value="5.0"></div>
+            <div class="calc-field" style="margin:0"><label for="rainfall">Rainfall (mm)</label><input id="rainfall" type="number" min="0" step="0.01" value="0.0"></div>
+          </div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-field"><label for="system">Step 4: Irrigation Method</label><select id="system"></select><div class="system-description" id="systemDescription"></div></div>
+          <div class="calc-field"><label for="efficiency">Efficiency %</label><input id="efficiency" type="number" min="1" max="100" step="1" value="90"></div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-field"><label for="guidedArea">Step 5: Field Size</label><input id="guidedArea" type="number" min="0.0001" step="0.01" value="1.0" placeholder="e.g. 1.0"></div>
+          <div class="calc-field"><label for="guidedUnit">Unit</label><select id="guidedUnit"><option>Hectares</option><option>Acres</option></select></div>
+        </div>
+        <div class="calc-field"><label for="interval">Irrigation Interval / Frequency</label><select id="interval"><option value="1">Daily (Every 1 day)</option><option value="2">Every 2 days</option><option value="3">Every 3 days</option><option value="5">Every 5 days</option><option value="7">Weekly (Every 7 days)</option></select></div>
+        <button class="primary-btn" id="guidedCalc" type="button">🧮 Calculate Crop Water Requirement</button>
+      </div>
+      <div id="manualMode" style="display:none">
+        <div class="calc-field"><label for="manualArea">Field Size</label><input id="manualArea" type="number" min="0.0001" step="0.01" value="1.0" placeholder="e.g. 1.0"></div>
+        <div class="calc-field"><label for="manualUnit">Area Unit</label><select id="manualUnit"><option>Hectares</option><option>Acres</option></select></div>
+        <div class="calc-field"><label for="manualDepth">Irrigation Depth per Application (mm)</label><input id="manualDepth" type="number" min="0.01" step="0.01" placeholder="e.g. 25"></div>
+        <div class="calc-field"><label for="manualEfficiency">System Efficiency (%)</label><input id="manualEfficiency" type="number" min="1" max="100" step="1" value="80" placeholder="e.g. 80"></div>
+        <button class="primary-btn" id="manualCalc" type="button">🧮 Calculate Volume from Depth</button>
+      </div>
+      <div id="calcError" class="calc-error" style="display:none"></div>
+      <div id="calcResult" class="calc-result" aria-live="polite">
+        <div class="result-main" id="resultMain"></div><div id="resultDetails"></div>
+        <button class="export-btn" id="exportBtn" type="button">🖨️ Print / Save Irrigation PDF Report</button>
+      </div>
+    </div>
+    <p class="method-note">Based on the same calculation logic and crop/system profiles used by the AgriBase Flutter irrigation calculator. FAO-56 guided mode uses ETc = ETo × Kc, rainfall credit, irrigation efficiency, interval and field area.</p>
+  </section>
+
+  <section class="faq-wrap">
+    <div class="faq-head">
+      <h2>❓ Irrigation Questions &amp; Answers</h2>
+      <p>Common questions from farmers using this calculator.</p>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>What are ETo and ETc, and why do they matter?</summary>
+        <p>ETo (reference evapotranspiration) is how much water a short, well-watered grass surface loses per day in your local weather — it's driven by sun, temperature, wind and humidity. ETc (crop evapotranspiration) is what your specific crop actually uses: ETc = ETo × Kc, where Kc is a crop coefficient that changes by growth stage. This calculator applies that FAO-56 formula for you.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Should I use Guided (FAO-56) mode or Manual Depth mode?</summary>
+        <p>Use Guided mode if you don't know how many millimetres to apply — it works it out from your crop, growth stage and local weather. Use Manual Depth mode if you already have a target application depth (e.g. from an agronomist or irrigation design) and just want the litres/m³ for your field size.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How accurate is the GPS weather sync?</summary>
+        <p>It pulls same-day ETo and rainfall estimates from Open-Meteo's forecast model for your location. It's a good working estimate for planning, but it's still a model, not a field measurement — cross-check with a rain gauge and local extension weather data for critical decisions, especially after unusual storms.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How do I know if I'm overwatering?</summary>
+        <p>Warning signs include standing water after irrigation, yellowing lower leaves, soft or rotting roots, algae or moss on the soil surface, and a sour smell in the root zone. If soil stays wet more than a day after irrigation at root depth, extend your interval or reduce your application depth.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Which irrigation method gives the best water efficiency?</summary>
+        <p>Drip/micro-drip is highest (around 90%) because water goes straight to the root zone with minimal evaporation or runoff. Furrow and basin flooding are lowest (55–65%) because much of the water is lost to deep percolation and runoff. Choose based on crop value, field slope, water availability and budget — not efficiency alone.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I calculate in Acres instead of Hectares?</summary>
+        <p>Yes — both the Guided and Manual modes have an area-unit selector. Switch it to Acres and enter your field size; the calculator converts internally (1 acre = 0.404686 hectares) before working out litres and m³.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Why does the same crop show different water needs at different stages?</summary>
+        <p>Water demand changes through a crop's life. Seedlings (Initial stage) need little water and are prone to rot if overwatered. Demand rises sharply during Vegetative growth, peaks at Mid-Season (flowering/fruiting — the most stress-sensitive stage for most crops), then usually drops in the Late-Season as the crop ripens and dries down.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="tools-wrap">
+    <div class="tools-grid">
+
+      <a class="tool-card" href="https://chinatsvi.github.io/farmer-calculators/">
+        <div class="icon icon-field">🧮</div>
+        <h3>Farm Calculators</h3>
+        <p>Fertilizer, plant population, crop spacing and farm profit calculators.</p>
+        <span class="status status-live">Click here</span>
+      </a>
+
+      <a class="tool-card" href="https://chinatsvi.github.io/planting/">
+        <div class="icon icon-gold">🌱</div>
+        <h3>Planting Calendar</h3>
+        <p>When to plant maize, groundnuts, beans, cabbage, tomatoes and more.</p>
+        <span class="status status-soon">Click Here</span>
+      </a>
+
+      <a class="tool-card" href="https://chinatsvi.github.io/weather/">
+        <div class="icon icon-ink">🌦️</div>
+        <h3>Farming Weather</h3>
+        <p>Forecasts and farming-specific conditions for planting, irrigation and spraying.</p>
+        <span class="status status-soon">Click Here</span>
+      </a>
+
+      <a class="tool-card" href="https://chinatsvi.github.io/pests/">
+        <div class="icon icon-soil">🐛</div>
+        <h3>Pest &amp; Disease Identifier</h3>
+        <p>Identify common pests and diseases by crop, starting with maize and beans.</p>
+        <span class="status status-soon">Click Here</span>
+      </a>
+
+      <a class="tool-card" href="https://chinatsvi.github.io/market/">
+        <div class="icon icon-field">💰</div>
+        <h3>Market Price Board</h3>
+        <p>Check current market prices for maize, groundnuts, beans and more before you sell.</p>
+        <span class="status status-soon">Click Here</span>
+      </a>
+
+      <a class="tool-card" href="https://chinatsvi.github.io/farmers-community/#features">
+        <div class="icon icon-gold">📚</div>
+        <h3>Farming Guides</h3>
+        <p>In-depth guides on crop farming, livestock, agribusiness and digital farming.</p>
+        <span class="status status-live">Click Here</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="cta-frame">
+      <span class="eyebrow" style="color:var(--soil); display:block; margin-bottom:12px;">Want it all on your phone?</span>
+      <h2>Get the AgriBase App</h2>
+      <p class="section-intro">
+        Record keeping, an AI farming assistant, weather info and the full
+        marketplace — all in one place.
+      </p>
+      <a class="button" href="https://www.mediafire.com/file/mg78viqjikkerc1/farmers.v1.0.1.apk/file" target="_blank" rel="noopener noreferrer">
+        📲 Download the App
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer (universal — keep identical across all AgriBase pages) -->
+  <footer>
+    <svg class="footer-top-edge" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#1E2B18" d="M0,34 L40,18 L80,37 L120,10 L160,30 L200,6 L240,36 L280,14 L320,26 L360,8 L400,38 L440,20 L480,4 L520,32 L560,16 L600,28 L640,10 L680,36 L720,22 L760,6 L800,34 L840,12 L880,38 L920,18 L960,8 L1000,30 L1040,14 L1080,36 L1120,20 L1160,6 L1200,32 L1200,0 L0,0 Z"></path>
+    </svg>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">
+          <span class="brand-icon"><img src="/favicon-256.png" alt="Farmer Community icon"></span>
+          <span>Farmer Community</span>
+        </div>
+        <div class="footer-tagline">Connect. Learn. Farm Better.</div>
+      </div>
+      <div class="footer-links">
+        <a href="https://chinatsvi.github.io/farmer-community-Help-FAQ/" target="_blank" rel="noopener noreferrer">Help &amp; FAQ</a>
+        <a href="https://chinatsvi.github.io/farmer-community-privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+        <a href="https://chinatsvi.github.io/farmer-community-terms/" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+        <a href="https://chinatsvi.github.io/farmer-community-contact-us/" target="_blank" rel="noopener noreferrer">Contact Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Farmer Community. All rights reserved.</div>
+  </footer>
+
+
+<script>
+const crops=[
+{id:'tomato',name:'Tomato',emoji:'🍅',kc:[.60,.85,1.15,.80],irrigation:'Drip',tip:'Maintain consistent soil moisture during flowering & fruit set to prevent blossom end rot and fruit splitting.'},
+{id:'maize',name:'Maize (Corn)',emoji:'🌽',kc:[.30,.70,1.20,.60],irrigation:'Sprinkler',tip:'Tasseling and silking are the most critical water stress periods; yield drops drastically if stressed during silking.'},
+{id:'cabbage',name:'Cabbage & Brassicas',emoji:'🥬',kc:[.50,.75,1.05,.95],irrigation:'Sprinkler',tip:'Shallow rooted; requires regular water applications during head enlargement to prevent premature bursting.'},
+{id:'groundnut',name:'Groundnut (Peanut)',emoji:'🥜',kc:[.40,.70,1.15,.60],irrigation:'Sprinkler',tip:'Pegging and pod development require adequate topsoil moisture so pegs can easily penetrate the soil bed.'},
+{id:'beans',name:'Beans (Green / Dry)',emoji:'🫘',kc:[.40,.70,1.15,.45],irrigation:'Drip',tip:'Sensitive to waterlogging and severe dry spells during flowering and pod setting.'},
+{id:'potato',name:'Potato',emoji:'🥔',kc:[.50,.75,1.15,.75],irrigation:'Sprinkler',tip:'Tuber initiation and bulking demand constant moisture to avoid deformed or hollow heart tubers.'},
+{id:'onion',name:'Onion & Garlic',emoji:'🧅',kc:[.70,.85,1.05,.75],irrigation:'Drip',tip:'Shallow root system; stop irrigation 2-3 weeks before harvest for proper bulb curing.'},
+{id:'pepper',name:'Pepper & Chilli',emoji:'🌶️',kc:[.60,.85,1.05,.90],irrigation:'Drip',tip:'Flower drop occurs if water stressed during warm weather. Keep roots consistently moist.'},
+{id:'wheat',name:'Wheat & Small Grains',emoji:'🌾',kc:[.30,.75,1.15,.40],irrigation:'Centre Pivot',tip:'Crown root initiation, booting, and grain milk stages require guaranteed irrigation.'},
+{id:'watermelon',name:'Watermelon & Melons',emoji:'🍉',kc:[.40,.70,1.00,.75],irrigation:'Drip',tip:'Reduce irrigation slightly during late ripening to increase fruit sugar content (brix).'},
+{id:'cotton',name:'Cotton',emoji:'🌱',kc:[.35,.75,1.20,.65],irrigation:'Drip',tip:'Peak water demand occurs during peak flowering and boll formation.'},
+{id:'carrot',name:'Carrot & Root Veg',emoji:'🥕',kc:[.50,.75,1.05,.95],irrigation:'Sprinkler',tip:'Irregular watering leads to cracked and forked roots. Keep top 20cm evenly moist.'},
+{id:'citrus',name:'Citrus & Fruit Trees',emoji:'🍊',kc:[.70,.70,.65,.70],irrigation:'Micro-Sprinkler',tip:'Deep root zone irrigation; apply water beneath tree canopy drip-line.'},
+{id:'banana',name:'Banana',emoji:'🍌',kc:[1,1.10,1.20,1.10],irrigation:'Drip',tip:'High water requirement year-round due to large broad leaves and rapid transpiration.'},
+{id:'pasture',name:'Pasture / Lucerne (Alfalfa)',emoji:'🌿',kc:[.40,.85,1.20,1.15],irrigation:'Sprinkler',tip:'Irrigate immediately following every cut/harvest to stimulate vigorous regrowth.'}
+];
+const stages=[['🌱 Initial / Seedling',0],['🌿 Vegetative Development',1],['🌸 Mid-Season (Flowering/Fruiting)',2],['🍂 Late-Season (Ripening/Harvest)',3]];
+const systems=[
+['Drip / Micro-Drip',90,'High precision, minimal evaporation & runoff loss.'],
+['Micro-Sprinkler / Jet',85,'Under-canopy spray with low wind drift.'],
+['Centre Pivot / Linear',85,'Uniform mechanized spray application.'],
+['Overhead Sprinkler',75,'Portable or solid-set impact sprinklers.'],
+['Basin / Bed Flooding',65,'Level beds enclosed by bunds.'],
+['Furrow / Ridge Irrigation',55,'Water flows along gravity trenches between ridges.'],
+['Manual / Watering Can',65,'Hand watering with bucket or hose.']
+];
+let crop=crops[0],system=systems[0];
+const $=id=>document.getElementById(id),fmt=n=>Math.round(n).toLocaleString('en-US');
+function populate(){
+  crops.forEach((c,i)=>$('crop').add(new Option(c.emoji+' '+c.name,i)));
+  systems.forEach((s,i)=>$('system').add(new Option(s[0],i)));
+  $('crop').value=0;$('system').value=0;updateCrop();
+}
+function updateCrop(){
+  crop=crops[+$('crop').value];
+  $('stage').innerHTML='';
+  stages.forEach(s=>$('stage').add(new Option(`${s[0]} (Kc: ${crop.kc[s[1]].toFixed(2)})`,s[1])));
+  $('stage').value=2;
+  const wanted=crop.irrigation.toLowerCase();
+  const match=systems.findIndex(s=>s[0].toLowerCase().includes(wanted));
+  if(match>=0){$('system').value=match;system=systems[match];$('efficiency').value=system[1];}
+  updateStage();updateSystem();clearResult();
+}
+function updateStage(){$('kcNote').textContent=`Selected Kc: ${crop.kc[+$('stage').value].toFixed(2)} for ${stages[+$('stage').value][0].replace(/^.. /,'')}.`}
+function updateSystem(){system=systems[+$('system').value];$('efficiency').value=system[1];$('systemDescription').textContent=system[2];}
+function clearResult(){$('calcResult').classList.remove('show');$('calcError').style.display='none'}
+function error(msg){$('calcResult').classList.remove('show');$('calcError').textContent=msg;$('calcError').style.display='block'}
+function showResult(main,lines,tip){$('resultMain').textContent=main;$('resultDetails').innerHTML=lines.map(x=>`<div class="detail-line">${x}</div>`).join('')+(tip?`<div class="tip">${tip}</div>`:'');$('calcResult').classList.add('show');$('calcError').style.display='none';}
+function calculateGuided(){
+  clearResult();const eto=Number($('eto').value),rain=Number($('rainfall').value)||0,area=Number($('guidedArea').value),eff=Number($('efficiency').value);
+  if(!(eto>0)||!(area>0)||!(eff>0&&eff<=100)){error('Please enter valid numbers for ETo, area, and efficiency');return;}
+  const idx=+$('stage').value,kc=crop.kc[idx],etc=eto*kc,netDaily=Math.min(Math.max(etc-rain,0),50),interval=+$('interval').value,netCycle=netDaily*interval,gross=netCycle/(eff/100);
+  const unit=$('guidedUnit').value,ha=unit==='Acres'?area*0.404686:area,litres=gross*ha*10000,m3=litres/1000;
+  showResult(`${fmt(litres)} Litres (${m3.toFixed(1)} m³)`,[
+    `🌱 Crop: ${crop.emoji} ${crop.name} (${stages[idx][0].replace(/^.. /,'')}, Kc = ${kc.toFixed(2)})`,
+    `☀️ Reference ETo: ${eto.toFixed(2)} mm/day`,
+    `🌿 Crop Water Use (ETc): ${etc.toFixed(2)} mm/day (${eto.toFixed(2)} × ${kc.toFixed(2)})`,
+    `🌧️ Effective Rainfall Credit: ${rain.toFixed(2)} mm`,
+    `💧 Net Water Deficit: ${netDaily.toFixed(2)} mm/day`,
+    `📅 Irrigation Cycle: ${interval===1?'Daily':`Every ${interval} days`} → ${netCycle.toFixed(2)} mm net`,
+    `🚿 System Application (${eff.toFixed(0)}% ${system[0]}): ${gross.toFixed(2)} mm gross`,
+    `🪣 Field Requirement: ${fmt(litres)} L for ${area.toLocaleString('en-US')} ${unit} (${gross.toFixed(2)} L/m²)`
+  ],`💡 Agronomic Note: ${crop.tip}`);
+}
+function calculateManual(){
+  clearResult();const area=Number($('manualArea').value),depth=Number($('manualDepth').value),eff=Number($('manualEfficiency').value);
+  if(!(area>0)||!(depth>0)||!(eff>0&&eff<=100)){error('Enter valid values for field area, depth, and efficiency');return;}
+  const unit=$('manualUnit').value,ha=unit==='Acres'?area*0.404686:area,net=ha*10000*depth,required=net/(eff/100),m3=required/1000;
+  showResult(`${fmt(required)} Litres (${m3.toFixed(1)} m³)`,[
+    `📐 Specified Depth: ${depth.toFixed(2)} mm`,
+    `💧 Net Water Volume: ${fmt(net)} litres`,
+    `🚿 Gross Volume (${eff.toFixed(0)}% efficiency): ${fmt(required)} litres (${m3.toFixed(1)} m³)`,
+    `Field Size: ${area.toLocaleString('en-US')} ${unit} (${ha.toLocaleString('en-US',{maximumFractionDigits:4})} ha)`
+  ]);
+}
+async function syncWeather(){
+  const b=$('syncBtn');b.disabled=true;b.textContent='⏳ Syncing...';
+  try{
+    let lat=-17.8248,lon=31.0530,gps=false;
+    if(navigator.geolocation){try{const p=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{enableHighAccuracy:false,timeout:6000,maximumAge:300000}));lat=p.coords.latitude;lon=p.coords.longitude;gps=true;}catch(_){}}
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=et0_fao_evapotranspiration,precipitation_sum&current=temperature_2m,relative_humidity_2m&timezone=auto`);
+    if(!r.ok)throw new Error('Weather service unavailable');const d=await r.json(),rawE=Number(d.daily.et0_fao_evapotranspiration?.[0]??4.8),rawR=Number(d.daily.precipitation_sum?.[0]??0),rain=rawR>5?rawR*.8:(rawR>0?rawR*.5:0);
+    $('eto').value=rawE.toFixed(2);$('rainfall').value=rain.toFixed(2);$('weatherNote').textContent=`${gps?'📍 GPS Synced':'🌦️ Regional Baseline'}: ${Number(d.current?.temperature_2m??24).toFixed(1)}°C, ${Math.round(Number(d.current?.relative_humidity_2m??55))}% RH • Daily ETo: ${rawE.toFixed(2)} mm • Rain: ${rawR.toFixed(1)} mm`;
+  }catch(_){$('eto').value='5.0';$('rainfall').value='0.0';$('weatherNote').textContent='☀️ Standard seasonal baseline: 5.0 mm/day ETo (Sunny/Warm)';}
+  b.disabled=false;b.textContent='📍 Sync GPS Weather';
+}
+$('guidedTab').onclick=()=>{ $('guidedMode').style.display='block';$('manualMode').style.display='none';$('guidedTab').classList.add('active');$('manualTab').classList.remove('active');clearResult();};
+$('manualTab').onclick=()=>{ $('guidedMode').style.display='none';$('manualMode').style.display='block';$('guidedTab').classList.remove('active');$('manualTab').classList.add('active');clearResult();};
+$('crop').onchange=updateCrop;$('stage').onchange=()=>{updateStage();clearResult()};$('system').onchange=()=>{updateSystem();clearResult()};$('guidedCalc').onclick=calculateGuided;$('manualCalc').onclick=calculateManual;$('syncBtn').onclick=syncWeather;$('exportBtn').onclick=()=>window.print();
+populate();
+</script>
+
+</body>
+</html>
